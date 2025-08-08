@@ -1,15 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
+const path = require('path');
 
 const app = express();
 app.use(bodyParser.json());
 
+// serve ไฟล์ static จากโฟลเดอร์ public
+app.use(express.static(path.join(__dirname, 'public')));
+
 const CHANNEL_ACCESS_TOKEN = 'N9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZlur4dfDtQ/CUVQa2p16LaE1kpyGOgOO9jzYy8q5ouh1o+J19/hIQTmPzyEaSMOI3Dh/SJjytIoFm0j5IOT3S/ommuDPGpuXcE4GNQdB04t89/1O/w1cDnyilFU=';
 const LIFF_URL = 'https://lucky-spin-line.onrender.com/lucky-spin.html';  // เปลี่ยนเป็นลิงก์เว็บวงล้อหมุนของคุณ
-
-const path = require('path');
-app.use(express.static(path.join(__dirname, 'public')));
 
 // เก็บสถานะผู้ใช้รอ confirm
 const waitingForConfirm = new Set();
