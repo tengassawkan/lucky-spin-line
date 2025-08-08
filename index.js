@@ -16,7 +16,7 @@ const prizes = [
 ];
 
 // URL GIF วงล้อหมุน
-const spinningGif = 'https://tenor.com/view/mario-block-lucky-block-pixel-smb-gif-16569725'
+const spinningGif = 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3l1ZXg3d20zaTNvdTlma3JjempxdTlocmxzY2xzeDUzejA2cjVpaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Wx0CKQMmqPMadG4VUs/giphy.gif'
 
 function getRandomPrize() {
   return prizes[Math.floor(Math.random() * prizes.length)];
