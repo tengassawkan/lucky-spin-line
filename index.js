@@ -16,8 +16,7 @@ const prizes = [
 ];
 
 // URL GIF วงล้อหมุน
-const spinningGif = 'https://www.google.com/url?sa=i&url=https%3A%2F%2Ftenor.com%2Fview%2Flucky-block-minecraft-mob-meowbahh-skeleton-gif-26502802&psig=AOvVaw22oHTHoi07y7CYdNAsgUHR&ust=1754721261237000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNCWmZ7M-o4DFQAAAAAdAAAAABAE';
-
+const spinningGif = 'https://tenor.com/view/mario-block-lucky-block-pixel-smb-gif-16569725'
 
 function getRandomPrize() {
   return prizes[Math.floor(Math.random() * prizes.length)];
