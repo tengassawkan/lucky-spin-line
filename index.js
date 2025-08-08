@@ -62,7 +62,7 @@ app.post('/webhook', async (req, res) => {
           const prize = getRandomPrize();
 
           // ส่งข้อความ "กำลังหมุนวงล้อ..."
-          await axios.post('https://api.line.me/v2/bot/message.reply', {
+          await axios.post('https://api.line.me/v2/bot/message/reply', {
             replyToken: event.replyToken,
             messages: [
               { type: 'text', text: '🎯 กำลังหมุนวงล้อ...' }
@@ -96,7 +96,7 @@ app.post('/webhook', async (req, res) => {
         }
         else {
           // กรณีข้อความอื่น ๆ
-          await axios.post('https://api.line.me/v2/bot/message.reply', {
+          await axios.post('https://api.line.me/v2/bot/message/reply', {
             replyToken: event.replyToken,
             messages: [
               { type: 'text', text: 'พิมพ์ "ลุ้นรางวัล" เพื่อเริ่มหมุนวงล้อได้ครับ' }
