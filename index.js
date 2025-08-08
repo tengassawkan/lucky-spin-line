@@ -18,9 +18,11 @@ function getRandomPrize() {
 }
 
 app.post('/webhook', (req, res) => {
-  // รับ webhook event จาก LINE
-  res.sendStatus(200); // ตอบกลับ 200 OK เสมอ
+  console.log('Webhook received:', req.body);
+  res.sendStatus(200);
 });
+
+
 
 
   for (let event of events) {
