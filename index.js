@@ -17,40 +17,48 @@ function getRandomPrize() {
   return prizes[Math.floor(Math.random() * prizes.length)];
 }
 
-app.post('/webhook', (req, res) => {
-  console.log('Webhook received:', req.body);
-  res.sendStatus(200);
-});
+app.post('/webhook', async (req, res) => {
+  try {
+    const events = req.body.events;
 
+    if (!events) {
+      return res.sendStatus(400);
+    }
 
+    // ประมวลผลแต่ละ event
+    for (let event of events) {
+      if (event.type === 'message' && event.message.type === 'text') {
+        if (event.message.text === 'ลุ้นรางวัล') {
+          const prize = getRandomPrize();
 
-
-  for (let event of events) {
-    if (event.type === 'message' && event.message.type === 'text') {
-      if (event.message.text === 'ลุ้นรางวัล') {
-        const prize = getRandomPrize();
-
-        await axios.post('https://api.line.me/v2/bot/message/reply', {
-          replyToken: event.replyToken,
-          messages: [
-            { type: 'text', text: 'กำลังหมุนวงล้อ... 🎯' },
-            { 
-              type: 'image', 
-              originalContentUrl: prize.image, 
-              previewImageUrl: prize.image 
-            },
-            { type: 'text', text: `คุณได้: ${prize.text}` }
-          ]
-        }, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
-          }
-        });
+          // ส่งข้อความตอบกลับผ่าน LINE Messaging API
+          await axios.post('https://api.line.me/v2/bot/message/reply', {
+            replyToken: event.replyToken,
+            messages: [
+              { type: 'text', text: 'กำลังหมุนวงล้อ... 🎯' },
+              { 
+                type: 'image', 
+                originalContentUrl: prize.image, 
+                previewImageUrl: prize.image 
+              },
+              { type: 'text', text: `คุณได้: ${prize.text}` }
+            ]
+          }, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`
+            }
+          });
+        }
       }
     }
+
+    res.sendStatus(200); // ตอบ 200 OK เสมอ
+
+  } catch (error) {
+    console.error('Error handling webhook:', error);
+    res.sendStatus(500);
   }
-  res.sendStatus(200);
 });
 
 const PORT = process.env.PORT || 3000;
