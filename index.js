@@ -17,8 +17,11 @@ function getRandomPrize() {
   return prizes[Math.floor(Math.random() * prizes.length)];
 }
 
-app.post('/webhook', async (req, res) => {
-  const events = req.body.events || [];
+app.post('/webhook', (req, res) => {
+  // รับ webhook event จาก LINE
+  res.sendStatus(200); // ตอบกลับ 200 OK เสมอ
+});
+
 
   for (let event of events) {
     if (event.type === 'message' && event.message.type === 'text') {
