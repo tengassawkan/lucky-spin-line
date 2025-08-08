@@ -24,6 +24,7 @@ app.post('/webhook', async (req, res) => {
     if (!events) {
       return res.sendStatus(400);
     }
+    
 
     // ประมวลผลแต่ละ event
     for (let event of events) {
@@ -60,6 +61,10 @@ app.post('/webhook', async (req, res) => {
     res.sendStatus(500);
   }
 });
+app.get('/lucky-spin', (req, res) => {
+  res.send('นี่คือหน้าเว็บ lucky spin');
+});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
