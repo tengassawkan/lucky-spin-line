@@ -15,8 +15,6 @@ const prizes = [
   { text: '🍪 ขนมฟรี 1 ชิ้น', image: 'https://i.imgur.com/snack.png' }
 ];
 
-// URL GIF วงล้อหมุน
-const spinningGif = 'https://cdn.pixabay.com/sp/2024/04/30/21/30/spin-lu-12315_512.gif'
 function getRandomPrize() {
   return prizes[Math.floor(Math.random() * prizes.length)];
 }
@@ -32,16 +30,11 @@ app.post('/webhook', async (req, res) => {
         if (event.message.text === 'ลุ้นรางวัล') {
           const prize = getRandomPrize();
 
-          // ส่งข้อความตอบกลับ "กำลังหมุนวงล้อ" + GIF
+          // ส่งข้อความตอบกลับ "กำลังหมุนวงล้อ" แบบไม่มีรูป GIF
           await axios.post('https://api.line.me/v2/bot/message/reply', {
             replyToken: event.replyToken,
             messages: [
-              { type: 'text', text: '🎯 กำลังหมุนวงล้อ...' },
-              {
-                type: 'image',
-                originalContentUrl: spinningGif,
-                previewImageUrl: spinningGif
-              }
+              { type: 'text', text: '🎯 กำลังหมุนวงล้อ...' }
             ]
           }, {
             headers: {
