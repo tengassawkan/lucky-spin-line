@@ -6,7 +6,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // แทนที่ด้วย Channel Access Token ของคุณ
-const CHANNEL_ACCESS_TOKEN = 'YOUR_CHANNEL_ACCESS_TOKEN';
+const CHANNEL_ACCESS_TOKEN = 'N9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZlur4dfDtQ/CUVQa2p16LaE1kpyGOgOO9jzYy8q5ouh1o+J19/hIQTmPzyEaSMOI3Dh/SJjytIoFm0j5IOT3S/ommuDPGpuXcE4GNQdB04t89/1O/w1cDnyilFU=';
 
 const prizes = [
   { text: '🎉 ส่วนลด 50%', image: 'https://i.imgur.com/discount.png' },
