@@ -5,9 +5,10 @@ const axios = require('axios');
 const app = express();
 app.use(bodyParser.json());
 
-const CHANNEL_ACCESS_TOKEN = 'YN9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZlur4dfDtQ/CUVQa2p16LaE1kpyGOgOO9jzYy8q5ouh1o+J19/hIQTmPzyEaSMOI3Dh/SJjytIoFm0j5IOT3S/ommuDPGpuXcE4GNQdB04t89/1O/w1cDnyilFU=';
+// ใส่ Channel Access Token ของคุณตรงนี้
+const CHANNEL_ACCESS_TOKEN = 'N9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZlur4dfDtQ/CUVQa2p16LaE1kpyGOgOO9jzYy8q5ouh1o+J19/hIQTmPzyEaSMOI3Dh/SJjytIoFm0j5IOT3S/ommuDPGpuXcE4GNQdB04t89/1O/w1cDnyilFU=';
 
-// รางวัล
+// รางวัลและรูปภาพประกอบ (แก้ไข URL รูปได้ตามต้องการ)
 const prizes = [
   { text: '🎉 ส่วนลด 50%', image: 'https://i.imgur.com/discount.png' },
   { text: '☕ ฟรีกาแฟ 1 แก้ว', image: 'https://i.imgur.com/coffee.png' },
@@ -17,10 +18,12 @@ const prizes = [
 // เก็บสถานะผู้ใช้ที่รอยืนยันการหมุน
 const waitingForConfirm = new Set();
 
+// ฟังก์ชันสุ่มรางวัล
 function getRandomPrize() {
   return prizes[Math.floor(Math.random() * prizes.length)];
 }
 
+// webhook รับ event จาก LINE
 app.post('/webhook', async (req, res) => {
   try {
     const events = req.body.events;
@@ -54,12 +57,13 @@ app.post('/webhook', async (req, res) => {
               'Content-Type': 'application/json'
             }
           });
+
         } else if (text === 'ตกลง' && waitingForConfirm.has(userId)) {
           waitingForConfirm.delete(userId);
           const prize = getRandomPrize();
 
           // ส่งข้อความกำลังหมุน (reply)
-          await axios.post('https://api.line.me/v2/bot/message.reply', {
+          await axios.post('https://api.line.me/v2/bot/message/reply', {
             replyToken: event.replyToken,
             messages: [
               { type: 'text', text: '🎯 กำลังหมุนวงล้อ...' }
@@ -92,8 +96,8 @@ app.post('/webhook', async (req, res) => {
           }, 3000);
 
         } else {
-          // ข้อความอื่น ๆ
-          await axios.post('https://api.line.me/v2/bot/message.reply', {
+          // กรณีข้อความอื่น ๆ
+          await axios.post('https://api.line.me/v2/bot/message/reply', {
             replyToken: event.replyToken,
             messages: [
               { type: 'text', text: 'พิมพ์ "ลุ้นรางวัล" เพื่อเริ่มหมุนวงล้อได้ครับ' }
@@ -107,6 +111,7 @@ app.post('/webhook', async (req, res) => {
         }
       }
     }
+
     res.sendStatus(200);
   } catch (error) {
     console.error('Error in webhook:', error.response?.data || error.message);
