@@ -16,7 +16,7 @@ const prizes = [
 ];
 
 // URL GIF วงล้อหมุน
-const spinningGif = 'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmwxM3Zka29seDV3ZGprcmZneXV6NjIyYWN4d2FpdTFjcmlmc3hkZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/4RaPld0hPNRXEk1cfv/giphy.gif'
+const spinningGif = 'https://cdn.pixabay.com/sp/2024/04/30/21/30/spin-lu-12315_512.gif'
 function getRandomPrize() {
   return prizes[Math.floor(Math.random() * prizes.length)];
 }
