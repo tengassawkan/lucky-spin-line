@@ -6,20 +6,10 @@ const app = express();
 app.use(bodyParser.json());
 
 const CHANNEL_ACCESS_TOKEN = 'N9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZlur4dfDtQ/CUVQa2p16LaE1kpyGOgOO9jzYy8q5ouh1o+J19/hIQTmPzyEaSMOI3Dh/SJjytIoFm0j5IOT3S/ommuDPGpuXcE4GNQdB04t89/1O/w1cDnyilFU=';
+const LIFF_URL = 'https://lucky-spin-line.onrender.com/lucky-spin.html';  // เปลี่ยนเป็นลิงก์เว็บวงล้อหมุนของคุณ
 
-// รางวัล
-const prizes = [
-  { text: '🎉 ส่วนลด 50%', image: 'https://i.imgur.com/discount.png' },
-  { text: '☕ ฟรีกาแฟ 1 แก้ว', image: 'https://i.imgur.com/coffee.png' },
-  { text: '🍪 ขนมฟรี 1 ชิ้น', image: 'https://i.imgur.com/snack.png' }
-];
-
-// เก็บสถานะผู้ใช้แบบง่าย ๆ (ถ้าอยากใช้ DB ให้เปลี่ยนตรงนี้)
+// เก็บสถานะผู้ใช้รอ confirm
 const waitingForConfirm = new Set();
-
-function getRandomPrize() {
-  return prizes[Math.floor(Math.random() * prizes.length)];
-}
 
 app.post('/webhook', async (req, res) => {
   try {
@@ -32,7 +22,6 @@ app.post('/webhook', async (req, res) => {
         const text = event.message.text.trim();
 
         if (text === 'ลุ้นรางวัล') {
-          // ส่งกติกา + ขอ confirm
           waitingForConfirm.add(userId);
 
           await axios.post('https://api.line.me/v2/bot/message/reply', {
@@ -42,60 +31,39 @@ app.post('/webhook', async (req, res) => {
                 type: 'text',
                 text:
                   '📢 กติกาการหมุนวงล้อ:\n' +
-                  '- ผู้เล่นต้องยืนยันก่อนหมุน\n' +
-                  '- รางวัลจะสุ่มแจก\n' +
-                  '- 1 คนหมุนได้ครั้งละ 1 รางวัล\n\n' +
-                  'ถ้าต้องการหมุนต่อ กรุณาพิมพ์ "ตกลง" เพื่อหมุนวงล้อ'
+                  '- ต้องยืนยันก่อนหมุน\n' +
+                  '- หมุนได้ 1 ครั้งต่อคน\n' +
+                  '- รางวัลจะสุ่มแจก\n\n' +
+                  'ถ้าต้องการหมุนวงล้อ กรุณาพิมพ์ "ตกลง" เพื่อยืนยันและรับลิงก์หมุนวงล้อ'
               }
             ]
           }, {
             headers: {
-              Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`,
+              'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`,
               'Content-Type': 'application/json'
             }
           });
         } 
         else if (text === 'ตกลง' && waitingForConfirm.has(userId)) {
-          // ลบสถานะ confirm ของ user
           waitingForConfirm.delete(userId);
 
-          const prize = getRandomPrize();
-
-          // ส่งข้อความ "กำลังหมุนวงล้อ..."
+          // ส่งลิงก์เว็บวงล้อหมุนให้ผู้ใช้
           await axios.post('https://api.line.me/v2/bot/message/reply', {
             replyToken: event.replyToken,
             messages: [
-              { type: 'text', text: '🎯 กำลังหมุนวงล้อ...' }
+              {
+                type: 'text',
+                text: `กดที่ลิงก์นี้เพื่อหมุนวงล้อเลยครับ:\n${LIFF_URL}`
+              }
             ]
           }, {
             headers: {
-              Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`,
+              'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`,
               'Content-Type': 'application/json'
             }
           });
-
-          // รอ 3 วินาที แล้วส่งรางวัล (push message)
-          setTimeout(async () => {
-            await axios.post('https://api.line.me/v2/bot/message/push', {
-              to: userId,
-              messages: [
-                { type: 'text', text: `🎉 คุณได้: ${prize.text}` },
-                {
-                  type: 'image',
-                  originalContentUrl: prize.image,
-                  previewImageUrl: prize.image
-                }
-              ]
-            }, {
-              headers: {
-                Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`,
-                'Content-Type': 'application/json'
-              }
-            });
-          }, 3000);
         }
         else {
-          // กรณีข้อความอื่น ๆ
           await axios.post('https://api.line.me/v2/bot/message/reply', {
             replyToken: event.replyToken,
             messages: [
@@ -103,7 +71,7 @@ app.post('/webhook', async (req, res) => {
             ]
           }, {
             headers: {
-              Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`,
+              'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`,
               'Content-Type': 'application/json'
             }
           });
@@ -115,6 +83,32 @@ app.post('/webhook', async (req, res) => {
   } catch (error) {
     console.error('Error in webhook:', error.response ? error.response.data : error.message);
     res.sendStatus(500);
+  }
+});
+
+// รับข้อมูลผลรางวัลจากเว็บวงล้อหมุน (LIFF หรือเว็บอื่นส่งมา)
+app.post('/api/send-prize', async (req, res) => {
+  try {
+    const { userId, prize } = req.body;
+    if (!userId || !prize) return res.status(400).send('Missing userId or prize');
+
+    // ส่งผลรางวัลกลับทางแชท (push message)
+    await axios.post('https://api.line.me/v2/bot/message/push', {
+      to: userId,
+      messages: [
+        { type: 'text', text: `🎉 คุณได้รางวัล: ${prize}` }
+      ]
+    }, {
+      headers: {
+        'Authorization': `Bearer ${CHANNEL_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    res.status(200).send('OK');
+  } catch (error) {
+    console.error(error.response?.data || error.message);
+    res.status(500).send('Error');
   }
 });
 
