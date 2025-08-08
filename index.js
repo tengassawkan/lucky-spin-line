@@ -16,7 +16,7 @@ const prizes = [
 ];
 
 // URL GIF วงล้อหมุน
-const spinningGif = 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExcWltY3YyOGduajd5aHl6cTZ3cmdudjBqZzlzbTBpc3ZxbXV1NmY0byZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/IOQSeZmdDRSu7J5Xcr/giphy.gif';
+const spinningGif = 'https://www.google.com/url?sa=i&url=https%3A%2F%2Ftenor.com%2Fview%2Flucky-block-minecraft-mob-meowbahh-skeleton-gif-26502802&psig=AOvVaw22oHTHoi07y7CYdNAsgUHR&ust=1754721261237000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCNCWmZ7M-o4DFQAAAAAdAAAAABAE';
 
 
 function getRandomPrize() {
