@@ -127,3 +127,45 @@ app.post('/webhook', async (req, res) => {
               });
 
               // รอ 3 วินาทีแล้วส่งรางวัลพร้อมรายชื่อผู้โชคดี (push)
+              setTimeout(async () => {
+                await axios.post('https://api.line.me/v2/bot/message.push', {
+                  to: userId,
+                  messages: [
+                    { type: 'text', text: `🎉 คุณได้รางวัล: ${prize.text}` },
+                    {
+                      type: 'image',
+                      originalContentUrl: prize.image,
+                      previewImageUrl: prize.image
+                    },
+                    { type: 'text', text: buildWinnersText() }
+                  ]
+                }, {
+                  headers: { Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`, 'Content-Type': 'application/json' }
+                });
+              }, 3000);
+            }
+          }
+
+        } else {
+          // กรณีข้อความอื่น ๆ
+          await axios.post('https://api.line.me/v2/bot/message.reply', {
+            replyToken: event.replyToken,
+            messages: [
+              { type: 'text', text: 'พิมพ์ "ลุ้นรางวัล" เพื่อเริ่มหมุนวงล้อได้ครับ' }
+            ]
+          }, {
+            headers: { Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`, 'Content-Type': 'application/json' }
+          });
+        }
+      }
+    }
+    res.sendStatus(200);
+
+  } catch (error) {
+    console.error('Error in webhook:', error.response?.data || error.message);
+    res.sendStatus(500);
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
