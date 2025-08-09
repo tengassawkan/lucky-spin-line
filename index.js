@@ -10,9 +10,10 @@ const CHANNEL_ACCESS_TOKEN = 'N9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZl
 
 // รางวัลและรูปภาพประกอบ (แก้ไข URL รูปได้ตามต้องการ)
 const prizes = [
-  { text: '🎉 ส่วนลด 50%', image: 'https://i.imgur.com/discount.png' },
-  { text: '☕ ฟรีกาแฟ 1 แก้ว', image: 'https://i.imgur.com/coffee.png' },
-  { text: '🍪 ขนมฟรี 1 ชิ้น', image: 'https://i.imgur.com/snack.png' }
+  { text: '🎉 ส่วนลด 50 บาท !', image: 'https://i.imgur.com/discount.png' },
+  { text: '☕ ฟรีเครื่องดื่ม 1 แก้ว', image: 'https://i.imgur.com/coffee.png' },
+  { text: '🎉 ส่วนลด 80 บาท !', image: 'https://i.imgur.com/snack.png' }
+  { text: '🎉 ส่วนลด 100 บาท !', image: 'https://i.imgur.com/snack.png' }
 ];
 
 // เก็บสถานะผู้ใช้ที่รอยืนยันการหมุน
@@ -67,7 +68,7 @@ app.post('/webhook', async (req, res) => {
           await axios.post('https://api.line.me/v2/bot/message/reply', {
             replyToken: event.replyToken,
             messages: [
-              { type: 'text', text: '🎯 กำลังหมุนวงล้อ ...ใช้เวลาประมาน 3 วินาที' }
+              { type: 'text', text: '🎯 กำลังหมุนวงล้อ ...' }
             ]
           }, {
             headers: {
