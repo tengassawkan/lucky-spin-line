@@ -6,9 +6,9 @@ const app = express();
 app.use(bodyParser.json());
 
 // ใส่ Channel Access Token ของคุณตรงนี้
-const CHANNEL_ACCESS_TOKEN = 'N9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZlur4dfDtQ/CUVQa2p16LaE1kpyGOgOO9jzYy8q5ouh1o+J19/hIQTmPzyEaSMOI3Dh/SJjytIoFm0j5IOT3S/ommuDPGpuXcE4GNQdB04t89/1O/w1cDnyilFU=';
+const CHANNEL_ACCESS_TOKEN = 'YOUR_CHANNEL_ACCESS_TOKEN';
 
-// รางวัลและรูปภาพประกอบ (แก้ไข URL รูปได้ตามต้องการ)
+// รางวัลและรูปภาพประกอบ (แก้ URL ตามต้องการ)
 const prizes = [
   { text: '🎉 ส่วนลด 50 บาท !', image: 'https://i.imgur.com/discount.png' },
   { text: '☕ ฟรีเครื่องดื่ม 1 แก้ว', image: 'https://i.imgur.com/coffee.png' },
@@ -19,9 +19,26 @@ const prizes = [
 // เก็บสถานะผู้ใช้ที่รอยืนยันการหมุน
 const waitingForConfirm = new Set();
 
+// เก็บข้อมูลผู้ใช้ที่ได้รางวัล { userId: { prize, name } }
+const userPrizes = {};
+
 // ฟังก์ชันสุ่มรางวัล
 function getRandomPrize() {
   return prizes[Math.floor(Math.random() * prizes.length)];
+}
+
+// สร้างข้อความรายชื่อผู้ได้รางวัลแบบข้อความ
+function buildWinnersText() {
+  if (Object.keys(userPrizes).length === 0) {
+    return 'ยังไม่มีผู้ได้รางวัลนะครับ';
+  }
+  let text = '🎊 รายชื่อผู้โชคดีที่ได้รางวัล:\n';
+  let i = 1;
+  for (const [userId, info] of Object.entries(userPrizes)) {
+    text += `${i}. ${info.name || userId} — ${info.prize}\n`;
+    i++;
+  }
+  return text;
 }
 
 // webhook รับ event จาก LINE
@@ -35,91 +52,78 @@ app.post('/webhook', async (req, res) => {
         const userId = event.source.userId;
         const text = event.message.text.trim();
 
+        // ถ้ายังไม่เคยหมุน
+        const hasSpun = userPrizes.hasOwnProperty(userId);
+
         if (text === 'ลุ้นรางวัล') {
-          waitingForConfirm.add(userId);
-
-          // ส่งข้อความกติกาและขอ confirm
-          await axios.post('https://api.line.me/v2/bot/message/reply', {
-            replyToken: event.replyToken,
-            messages: [
-              {
-                type: 'text',
-                text: 
-                  '📢 กติกาการเล่นกิจกรรมเสี่ยงโชค:\n' +
-                  '- กรุณา พิมชื่อ - นามสกุล\n' +
-                  '- ท่านต้องยืนยันก่อนทำการสุ่มรางวัล\n' +
-                  '- หมุนได้ท่านละ 1 ครั้ง\n' +
-                  '- รางวัลจะทำการสุ่มตามระบบ\n\n' +
-                  'พิมพ์ "ตกลง" เพื่อหมุนวงล้อ'
-              }
-            ]
-          }, {
-            headers: {
-              Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`,
-              'Content-Type': 'application/json'
-            }
-          });
-
-        } else if (text === 'ตกลง' && waitingForConfirm.has(userId)) {
-          waitingForConfirm.delete(userId);
-          const prize = getRandomPrize();
-
-          // ส่งข้อความกำลังหมุน (reply)
-          await axios.post('https://api.line.me/v2/bot/message/reply', {
-            replyToken: event.replyToken,
-            messages: [
-              { type: 'text', text: '🎯 กำลังหมุนวงล้อ ...' }
-            ]
-          }, {
-            headers: {
-              Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`,
-              'Content-Type': 'application/json'
-            }
-          });
-
-          // รอ 3 วินาทีแล้วส่งรางวัล (push)
-          setTimeout(async () => {
-            await axios.post('https://api.line.me/v2/bot/message/push', {
-              to: userId,
+          if (hasSpun) {
+            // เคยหมุนแล้ว แจ้งไปเลย
+            await axios.post('https://api.line.me/v2/bot/message.reply', {
+              replyToken: event.replyToken,
               messages: [
-                { type: 'text', text: `🎉 คุณได้รางวัล: ${prize.text}` },
+                { type: 'text', text: 'คุณหมุนรางวัลไปแล้วครับ ไม่สามารถหมุนซ้ำได้' },
+                { type: 'text', text: buildWinnersText() }
+              ]
+            }, {
+              headers: { Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`, 'Content-Type': 'application/json' }
+            });
+          } else {
+            // รอ confirm หมุน
+            waitingForConfirm.add(userId);
+            await axios.post('https://api.line.me/v2/bot/message.reply', {
+              replyToken: event.replyToken,
+              messages: [
                 {
-                  type: 'image',
-                  originalContentUrl: prize.image,
-                  previewImageUrl: prize.image
+                  type: 'text',
+                  text: 
+                    '📢 กติกาการเล่นกิจกรรมเสี่ยงโชค:\n' +
+                    '- กรุณาพิมพ์ชื่อ - นามสกุลของคุณ\n' +
+                    '- ต้องยืนยันก่อนหมุน\n' +
+                    '- หมุนได้คนละ 1 ครั้ง\n' +
+                    '- รางวัลจะสุ่มแจก\n\n' +
+                    'พิมพ์ "ตกลง ชื่อ-นามสกุล" เพื่อยืนยันและหมุนวงล้อ'
                 }
               ]
             }, {
-              headers: {
-                Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`,
-                'Content-Type': 'application/json'
-              }
+              headers: { Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`, 'Content-Type': 'application/json' }
             });
-          }, 3000);
+          }
 
-        } else {
-          // กรณีข้อความอื่น ๆ
-          await axios.post('https://api.line.me/v2/bot/message/reply', {
-            replyToken: event.replyToken,
-            messages: [
-              { type: 'text', text: 'พิมพ์ "ลุ้นรางวัล" เพื่อเริ่มหมุนวงล้อได้ครับ' }
-            ]
-          }, {
-            headers: {
-              Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`,
-              'Content-Type': 'application/json'
-            }
-          });
-        }
-      }
-    }
+        } else if (text.startsWith('ตกลง') && waitingForConfirm.has(userId)) {
+          // ดึงชื่อจากข้อความ "ตกลง ชื่อ-นามสกุล"
+          const name = text.substring(5).trim();
+          if (!name) {
+            // ถ้าไม่ใส่ชื่อ แจ้งกลับ
+            await axios.post('https://api.line.me/v2/bot/message.reply', {
+              replyToken: event.replyToken,
+              messages: [{ type: 'text', text: 'กรุณาพิมพ์ชื่อ - นามสกุลหลังคำว่า "ตกลง" ด้วยครับ เช่น ตกลง สมชาย ใจดี' }]
+            }, {
+              headers: { Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`, 'Content-Type': 'application/json' }
+            });
+          } else {
+            // ลบสถานะรอ confirm
+            waitingForConfirm.delete(userId);
+            if (userPrizes[userId]) {
+              // เคยหมุนแล้ว
+              await axios.post('https://api.line.me/v2/bot/message.reply', {
+                replyToken: event.replyToken,
+                messages: [
+                  { type: 'text', text: 'คุณหมุนรางวัลไปแล้วครับ ไม่สามารถหมุนซ้ำได้' },
+                  { type: 'text', text: buildWinnersText() }
+                ]
+              }, {
+                headers: { Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`, 'Content-Type': 'application/json' }
+              });
+            } else {
+              const prize = getRandomPrize();
+              userPrizes[userId] = { prize: prize.text, name };
 
-    res.sendStatus(200);
-  } catch (error) {
-    console.error('Error in webhook:', error.response?.data || error.message);
-    res.sendStatus(500);
-  }
-});
+              // ส่งข้อความกำลังหมุน
+              await axios.post('https://api.line.me/v2/bot/message.reply', {
+                replyToken: event.replyToken,
+                messages: [{ type: 'text', text: '🎯 กำลังหมุนวงล้อ ...' }]
+              }, {
+                headers: { Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`, 'Content-Type': 'application/json' }
+              });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+              // รอ 3 วินาทีแล้วส่งรางวัลพร้อมรายชื่อผู้โชคดี (push)
