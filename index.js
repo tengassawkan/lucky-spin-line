@@ -6,7 +6,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // ใส่ Channel Access Token ของคุณตรงนี้
-const CHANNEL_ACCESS_TOKEN = 'YOUR_CHANNEL_ACCESS_TOKEN';
+const CHANNEL_ACCESS_TOKEN = 'N9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZlur4dfDtQ/CUVQa2p16LaE1kpyGOgOO9jzYy8q5ouh1o+J19/hIQTmPzyEaSMOI3Dh/SJjytIoFm0j5IOT3S/ommuDPGpuXcE4GNQdB04t89/1O/w1cDnyilFU=';
 
 // รางวัลและรูปภาพประกอบ (แก้ URL ตามต้องการ)
 const prizes = [
