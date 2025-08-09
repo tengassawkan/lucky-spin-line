@@ -113,7 +113,7 @@ app.post('/webhook', async (req, res) => {
               const prize = getRandomPrize();
               userPrizes[userId] = { prize: prize.text, name };
 
-              await axios.post('https://api.line.me/v2/bot/message.reply', {
+              await axios.post('https://api.line.me/v2/bot/message/reply', {
                 replyToken: event.replyToken,
                 messages: [{ type: 'text', text: '🎯 กำลังหมุนวงล้อ ...' }]
               }, {
