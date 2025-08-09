@@ -6,7 +6,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // ใส่ Channel Access Token ของคุณตรงนี้
-const CHANNEL_ACCESS_TOKEN = 'N9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZlur4dfDtQ/CUVQa2p16LaE1kpyGOgOO9jzYy8q5ouh1o+J19/hIQTmPzyEaSMOI3Dh/SJjytIoFm0j5IOT3S/ommuDPGpuXcE4GNQdB04t89/1O/w1cDnyilFU=';
+const CHANNEL_ACCESS_TOKEN = 'YOUR_CHANNEL_ACCESS_TOKEN';
 
 // รางวัลและรูปภาพประกอบ (แก้ URL ตามต้องการ)
 const prizes = [
@@ -43,6 +43,8 @@ function buildWinnersText() {
 
 // webhook รับ event จาก LINE
 app.post('/webhook', async (req, res) => {
+  console.log('Webhook event:', JSON.stringify(req.body, null, 2));
+
   try {
     const events = req.body.events;
     if (!events) return res.sendStatus(400);
@@ -52,13 +54,11 @@ app.post('/webhook', async (req, res) => {
         const userId = event.source.userId;
         const text = event.message.text.trim();
 
-        // ถ้ายังไม่เคยหมุน
         const hasSpun = userPrizes.hasOwnProperty(userId);
 
         if (text === 'ลุ้นรางวัล') {
           if (hasSpun) {
-            // เคยหมุนแล้ว แจ้งไปเลย
-            await axios.post('https://api.line.me/v2/bot/message.reply', {
+            await axios.post('https://api.line.me/v2/bot/message/reply', {
               replyToken: event.replyToken,
               messages: [
                 { type: 'text', text: 'คุณหมุนรางวัลไปแล้วครับ ไม่สามารถหมุนซ้ำได้' },
@@ -68,9 +68,8 @@ app.post('/webhook', async (req, res) => {
               headers: { Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`, 'Content-Type': 'application/json' }
             });
           } else {
-            // รอ confirm หมุน
             waitingForConfirm.add(userId);
-            await axios.post('https://api.line.me/v2/bot/message.reply', {
+            await axios.post('https://api.line.me/v2/bot/message/reply', {
               replyToken: event.replyToken,
               messages: [
                 {
@@ -90,22 +89,18 @@ app.post('/webhook', async (req, res) => {
           }
 
         } else if (text.startsWith('ตกลง') && waitingForConfirm.has(userId)) {
-          // ดึงชื่อจากข้อความ "ตกลง ชื่อ-นามสกุล"
           const name = text.substring(5).trim();
           if (!name) {
-            // ถ้าไม่ใส่ชื่อ แจ้งกลับ
-            await axios.post('https://api.line.me/v2/bot/message.reply', {
+            await axios.post('https://api.line.me/v2/bot/message/reply', {
               replyToken: event.replyToken,
               messages: [{ type: 'text', text: 'กรุณาพิมพ์ชื่อ - นามสกุลหลังคำว่า "ตกลง" ด้วยครับ เช่น ตกลง สมชาย ใจดี' }]
             }, {
               headers: { Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`, 'Content-Type': 'application/json' }
             });
           } else {
-            // ลบสถานะรอ confirm
             waitingForConfirm.delete(userId);
             if (userPrizes[userId]) {
-              // เคยหมุนแล้ว
-              await axios.post('https://api.line.me/v2/bot/message.reply', {
+              await axios.post('https://api.line.me/v2/bot/message/reply', {
                 replyToken: event.replyToken,
                 messages: [
                   { type: 'text', text: 'คุณหมุนรางวัลไปแล้วครับ ไม่สามารถหมุนซ้ำได้' },
@@ -118,7 +113,6 @@ app.post('/webhook', async (req, res) => {
               const prize = getRandomPrize();
               userPrizes[userId] = { prize: prize.text, name };
 
-              // ส่งข้อความกำลังหมุน
               await axios.post('https://api.line.me/v2/bot/message.reply', {
                 replyToken: event.replyToken,
                 messages: [{ type: 'text', text: '🎯 กำลังหมุนวงล้อ ...' }]
@@ -126,9 +120,8 @@ app.post('/webhook', async (req, res) => {
                 headers: { Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`, 'Content-Type': 'application/json' }
               });
 
-              // รอ 3 วินาทีแล้วส่งรางวัลพร้อมรายชื่อผู้โชคดี (push)
               setTimeout(async () => {
-                await axios.post('https://api.line.me/v2/bot/message.push', {
+                await axios.post('https://api.line.me/v2/bot/message/push', {
                   to: userId,
                   messages: [
                     { type: 'text', text: `🎉 คุณได้รางวัล: ${prize.text}` },
@@ -145,10 +138,8 @@ app.post('/webhook', async (req, res) => {
               }, 3000);
             }
           }
-
         } else {
-          // กรณีข้อความอื่น ๆ
-          await axios.post('https://api.line.me/v2/bot/message.reply', {
+          await axios.post('https://api.line.me/v2/bot/message/reply', {
             replyToken: event.replyToken,
             messages: [
               { type: 'text', text: 'พิมพ์ "ลุ้นรางวัล" เพื่อเริ่มหมุนวงล้อได้ครับ' }
