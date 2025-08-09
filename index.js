@@ -8,22 +8,30 @@ app.use(bodyParser.json());
 // ใส่ Channel Access Token ของคุณตรงนี้
 const CHANNEL_ACCESS_TOKEN = 'N9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZlur4dfDtQ/CUVQa2p16LaE1kpyGOgOO9jzYy8q5ouh1o+J19/hIQTmPzyEaSMOI3Dh/SJjytIoFm0j5IOT3S/ommuDPGpuXcE4GNQdB04t89/1O/w1cDnyilFU=';
 
-// รางวัลและรูปภาพประกอบ (แก้ไข URL รูปได้ตามต้องการ)
-const prizes = [
-  { text: '🎉 โซฟาปรับนอน Recliner มูลค่า 8,900 -!', image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTN6ZG0yMjk4bHZ1b3NpcDgwYnE2bmViNTlqZ2VwcDdiZmgyOGNsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Wx0CKQMmqPMadG4VUs/giphy.gif' },
-  { text: '🎉 ชุดผ้าปู + ปลอกหมอน 6 ฟุค มูลค่า 790 -', image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTN6ZG0yMjk4bHZ1b3NpcDgwYnE2bmViNTlqZ2VwcDdiZmgyOGNsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Wx0CKQMmqPMadG4VUs/giphy.gif' },
-  { text: '🎉 หมอนหนุน มูลค่า 250 - !', image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTN6ZG0yMjk4bHZ1b3NpcDgwYnE2bmViNTlqZ2VwcDdiZmgyOGNsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Wx0CKQMmqPMadG4VUs/giphy.gif' },
-  { text: '🎉 หมอนข้าง มูลค่า 350 - !', image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTN6ZG0yMjk4bHZ1b3NpcDgwYnE2bmViNTlqZ2VwcDdiZmgyOGNsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Wx0CKQMmqPMadG4VUs/giphy.gif'}
-]
+// รางวัลและน้ำหนักความน่าจะเป็น
+const weightedPrizes = [
+  { prize: { text: '🎉 โซฟาปรับนอน Recliner มูลค่า 8,900 -!', image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTN6ZG0yMjk4bHZ1b3NpcDgwYnE2bmViNTlqZ2VwcDdiZmgyOGNsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Wx0CKQMmqPMadG4VUs/giphy.gif' }, weight: 1 },  // โอกาสออกน้อยที่สุด
+  { prize: { text: '🎉 ชุดผ้าปู + ปลอกหมอน 6 ฟุค มูลค่า 790 -', image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTN6ZG0yMjk4bHZ1b3NpcDgwYnE2bmViNTlqZ2VwcDdiZmgyOGNsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Wx0CKQMmqPMadG4VUs/giphy.gif' }, weight: 5 },
+  { prize: { text: '🎉 หมอนหนุน มูลค่า 250 - !', image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTN6ZG0yMjk4bHZ1b3NpcDgwYnE2bmViNTlqZ2VwcDdiZmgyOGNsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Wx0CKQMmqPMadG4VUs/giphy.gif' }, weight: 5 },
+  { prize: { text: '🎉 หมอนข้าง มูลค่า 350 - !', image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTN6ZG0yMjk4bHZ1b3NpcDgwYnE2bmViNTlqZ2VwcDdiZmgyOGNsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Wx0CKQMmqPMadG4VUs/giphy.gif' }, weight: 5 }
+];
+
+// ฟังก์ชันสุ่มรางวัลแบบ weighted
+function getRandomPrize() {
+  const totalWeight = weightedPrizes.reduce((sum, item) => sum + item.weight, 0);
+  let random = Math.random() * totalWeight;
+
+  for (const item of weightedPrizes) {
+    if (random < item.weight) {
+      return item.prize;
+    }
+    random -= item.weight;
+  }
+}
+
 // เก็บสถานะผู้ใช้ที่รอยืนยันการหมุน
 const waitingForConfirm = new Set();
 
-// ฟังก์ชันสุ่มรางวัล
-function getRandomPrize() {
-  return prizes[Math.floor(Math.random() * prizes.length)];
-}
-
-// webhook รับ event จาก LINE
 app.post('/webhook', async (req, res) => {
   try {
     const events = req.body.events;
@@ -37,7 +45,6 @@ app.post('/webhook', async (req, res) => {
         if (text === 'ลุ้นรางวัล') {
           waitingForConfirm.add(userId);
 
-          // ส่งข้อความกติกาและขอ confirm
           await axios.post('https://api.line.me/v2/bot/message/reply', {
             replyToken: event.replyToken,
             messages: [
@@ -63,7 +70,6 @@ app.post('/webhook', async (req, res) => {
           waitingForConfirm.delete(userId);
           const prize = getRandomPrize();
 
-          // ส่งข้อความกำลังหมุน (reply)
           await axios.post('https://api.line.me/v2/bot/message/reply', {
             replyToken: event.replyToken,
             messages: [
@@ -76,7 +82,6 @@ app.post('/webhook', async (req, res) => {
             }
           });
 
-          // รอ 3 วินาทีแล้วส่งรางวัล (push)
           setTimeout(async () => {
             await axios.post('https://api.line.me/v2/bot/message/push', {
               to: userId,
@@ -97,7 +102,6 @@ app.post('/webhook', async (req, res) => {
           }, 3000);
 
         } else {
-          // กรณีข้อความอื่น ๆ
           await axios.post('https://api.line.me/v2/bot/message/reply', {
             replyToken: event.replyToken,
             messages: [
