@@ -12,7 +12,7 @@ const CHANNEL_ACCESS_TOKEN = 'N9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZl
 const prizes = [
   { text: '🎉 ส่วนลด 50 บาท !', image: 'https://i.imgur.com/discount.png' },
   { text: '☕ ฟรีเครื่องดื่ม 1 แก้ว', image: 'https://i.imgur.com/coffee.png' },
-  { text: '🎉 ส่วนลด 80 บาท !', image: 'https://i.imgur.com/snack.png' }
+  { text: '🎉 ส่วนลด 80 บาท !', image: 'https://i.imgur.com/snack.png' },
   { text: '🎉 ส่วนลด 100 บาท !', image: 'https://i.imgur.com/snack.png' }
 ];
 
