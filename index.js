@@ -13,7 +13,7 @@ const prizes = [
   { text: '🎉 โซฟาปรับนอน Recliner มูลค่า 8,900 -!', image: 'https://drive.google.com/file/d/16AuB6MWTnORAUKI4AltKcyJi23fDgW1E/view?usp=sharing' },
   { text: '🎉 ชุดผ้าปู + ปลอกหมอน 6 ฟุค มูลค่า 790 -', image: 'https://i.imgur.com/coffee.png' },
   { text: '🎉 หมอนหนุน มูลค่า 250 - !', image: '/Users/tengeiei/lucky-spin-line/Photo/2.jpg' },
-  { text: '🎉 หมอนข้าง มูลค่า 350 - !', image: '/Users/tengeiei/lucky-spin-line/Photo/1.jpg' }
+  { text: '🎉 หมอนข้าง มูลค่า 350 - !', image: 'https://drive.google.com/file/d/16AuB6MWTnORAUKI4AltKcyJi23fDgW1E/view?usp=sharing' }
 ];
 
 // เก็บสถานะผู้ใช้ที่รอยืนยันการหมุน
