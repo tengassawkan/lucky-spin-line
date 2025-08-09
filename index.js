@@ -10,11 +10,10 @@ const CHANNEL_ACCESS_TOKEN = 'N9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZl
 
 // รางวัลและรูปภาพประกอบ (แก้ไข URL รูปได้ตามต้องการ)
 const prizes = [
-  { text: '🎉 โซฟาปรับนอน Recliner มูลค่า 8,900 -!', image: 'https://drive.google.com/file/d/16AuB6MWTnORAUKI4AltKcyJi23fDgW1E/view?usp=sharing' },
-  { text: '🎉 ชุดผ้าปู + ปลอกหมอน 6 ฟุค มูลค่า 790 -', image: 'https://i.imgur.com/coffee.png' },
-  { text: '🎉 หมอนหนุน มูลค่า 250 - !', image: '/Users/tengeiei/lucky-spin-line/Photo/2.jpg' },
-  { text: '🎉 หมอนข้าง มูลค่า 350 - !', image: 'https://drive.google.com/file/d/1yaw4EN3Axa5uSJ2JCRNyxq2c02im_nZN/view?usp=share_link' }
-];
+  { text: '🎉 โซฟาปรับนอน Recliner มูลค่า 8,900 -!', image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTN6ZG0yMjk4bHZ1b3NpcDgwYnE2bmViNTlqZ2VwcDdiZmgyOGNsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Wx0CKQMmqPMadG4VUs/giphy.gif' },
+  { text: '🎉 ชุดผ้าปู + ปลอกหมอน 6 ฟุค มูลค่า 790 -', image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTN6ZG0yMjk4bHZ1b3NpcDgwYnE2bmViNTlqZ2VwcDdiZmgyOGNsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Wx0CKQMmqPMadG4VUs/giphy.gif' },
+  { text: '🎉 หมอนหนุน มูลค่า 250 - !', image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTN6ZG0yMjk4bHZ1b3NpcDgwYnE2bmViNTlqZ2VwcDdiZmgyOGNsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Wx0CKQMmqPMadG4VUs/giphy.gif' },
+  { text: '🎉 หมอนข้าง มูลค่า 350 - !', image: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTN6ZG0yMjk4bHZ1b3NpcDgwYnE2bmViNTlqZ2VwcDdiZmgyOGNsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Wx0CKQMmqPMadG4VUs/giphy.gif'}
 
 // เก็บสถานะผู้ใช้ที่รอยืนยันการหมุน
 const waitingForConfirm = new Set();
