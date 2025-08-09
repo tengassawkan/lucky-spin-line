@@ -10,9 +10,9 @@ const CHANNEL_ACCESS_TOKEN = 'N9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZl
 
 // รางวัลและรูปภาพประกอบ (แก้ไข URL รูปได้ตามต้องการ)
 const prizes = [
-  { text: '🎉 โซฟาปรับนอน Recliner มูลค่า 8,900 -!', image: 'https://i.imgur.com/discount.png' },
+  { text: '🎉 โซฟาปรับนอน Recliner มูลค่า 8,900 -!', image: '/Users/tengeiei/lucky-spin-line/Photo/3.jpg' },
   { text: '🎉 ชุดผ้าปู + ปลอกหมอน 6 ฟุค มูลค่า 790 -', image: 'https://i.imgur.com/coffee.png' },
-  { text: '🎉 หมอนหนุน มูลค่า 250 - !', image: 'https://i.imgur.com/snack.png' },
+  { text: '🎉 หมอนหนุน มูลค่า 250 - !', image: '/Users/tengeiei/lucky-spin-line/Photo/2.jpg' },
   { text: '🎉 หมอนข้าง มูลค่า 350 - !', image: '/Users/tengeiei/lucky-spin-line/Photo/1.jpg' }
 ];
 
