@@ -5,29 +5,22 @@ const axios = require('axios');
 const app = express();
 app.use(bodyParser.json());
 
-// ใส่ Channel Access Token ของคุณตรงนี้
 const CHANNEL_ACCESS_TOKEN = 'N9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZlur4dfDtQ/CUVQa2p16LaE1kpyGOgOO9jzYy8q5ouh1o+J19/hIQTmPzyEaSMOI3Dh/SJjytIoFm0j5IOT3S/ommuDPGpuXcE4GNQdB04t89/1O/w1cDnyilFU=';
 
-// รางวัล
 const prizes = [
   { text: '🎉 ชุดผ้าปู + ปลอกหมอน 6 ฟุค มูลค่า 790 -' },
   { text: '🎉 หมอนหนุน มูลค่า 250 - !' },
   { text: '🎉 หมอนข้าง มูลค่า 350 - !' }
 ];
 
-// สถานะผู้ใช้รอกรอกชื่อ
 const waitingForName = new Set();
-// สถานะผู้ใช้รอยืนยันหมุน
 const waitingForConfirm = new Set();
-// เก็บชื่อผู้ใช้
 const userNames = {};
 
-// ฟังก์ชันสุ่มรางวัลแบบธรรมดา
 function getRandomPrize() {
   return prizes[Math.floor(Math.random() * prizes.length)];
 }
 
-// ฟังก์ชันส่งข้อความ reply
 async function replyMessage(replyToken, messages) {
   await axios.post('https://api.line.me/v2/bot/message/reply', {
     replyToken,
@@ -50,7 +43,6 @@ app.post('/webhook', async (req, res) => {
         const userId = event.source.userId;
         const text = event.message.text.trim();
 
-        // กรณีเริ่มเล่น พิมพ์ "ลุ้นรางวัล"
         if (text === 'ลุ้นรางวัล') {
           waitingForName.add(userId);
           await replyMessage(event.replyToken, [
@@ -60,7 +52,6 @@ app.post('/webhook', async (req, res) => {
             }
           ]);
         }
-        // กรณีรอชื่อ
         else if (waitingForName.has(userId)) {
           userNames[userId] = text;
           waitingForName.delete(userId);
@@ -79,16 +70,13 @@ app.post('/webhook', async (req, res) => {
             }
           ]);
         }
-        // กรณีรอยืนยัน "ตกลง"
         else if (text === 'ตกลง' && waitingForConfirm.has(userId)) {
           waitingForConfirm.delete(userId);
 
-          // แจ้งกำลังหมุน
           await replyMessage(event.replyToken, [
             { type: 'text', text: '🎯 กำลังหมุนวงล้อ ...' }
           ]);
 
-          // สุ่มรางวัลและตอบหลัง 3 วิ
           setTimeout(async () => {
             const prize = getRandomPrize();
             await axios.post('https://api.line.me/v2/bot/message/push', {
@@ -104,11 +92,12 @@ app.post('/webhook', async (req, res) => {
             });
           }, 3000);
         }
-        // กรณีข้อความอื่น ๆ
         else {
-          await replyMessage(event.replyToken, [
-            { type: 'text', text: 'พิมพ์ "ลุ้นรางวัล" เพื่อเริ่มหมุนวงล้อได้ครับ' }
-          ]);
+          // ตรงนี้ไม่ตอบอะไรเลย (หรือจะส่งข้อความทักทายทั่วไปก็ได้)
+          // await replyMessage(event.replyToken, [
+          //   { type: 'text', text: 'สวัสดีครับ ยินดีให้บริการครับ' }
+          // ]);
+          // แต่ถ้าไม่อยากตอบอะไรเลยให้เว้นไว้เฉย ๆ
         }
       }
     }
