@@ -6,7 +6,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // ใส่ Channel Access Token ของคุณตรงนี้
-const CHANNEL_ACCESS_TOKEN = 'mEViaFJkpE5dnTgBCAbm6C5JzTgmtXy6a61N7YuC2J9SO1MxfhSfDiLN2NBsWFVg8tYw9yClgDfAufC2RnNR+JgiKc4pKUbcTKSSMhCWxKlCXKONCtp6oysq98g2bWa6YaGZe8IdH3jDlmzRRoSVGAdB04t89/1O/w1cDnyilFU=';
+const CHANNEL_ACCESS_TOKEN = '';
 
 // รางวัล
 const prizes = [
