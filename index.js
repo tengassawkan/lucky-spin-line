@@ -6,7 +6,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // ใส่ Channel Access Token ของคุณตรงนี้
-const CHANNEL_ACCESS_TOKEN = 'N9MdAkeCqg6kMk2LgwkTl6dy9yhba10ec4l9w5APzRy3SpSfZlur4dfDtQ/CUVQa2p16LaE1kpyGOgOO9jzYy8q5ouh1o+J19/hIQTmPzyEaSMOI3Dh/SJjytIoFm0j5IOT3S/ommuDPGpuXcE4GNQdB04t89/1O/w1cDnyilFU=';
+const CHANNEL_ACCESS_TOKEN = 'mEViaFJkpE5dnTgBCAbm6C5JzTgmtXy6a61N7YuC2J9SO1MxfhSfDiLN2NBsWFVg8tYw9yClgDfAufC2RnNR+JgiKc4pKUbcTKSSMhCWxKlCXKONCtp6oysq98g2bWa6YaGZe8IdH3jDlmzRRoSVGAdB04t89/1O/w1cDnyilFU=';
 
 // รางวัลและน้ำหนักความน่าจะเป็น
 const weightedPrizes = [
