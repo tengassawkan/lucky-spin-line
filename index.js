@@ -8,28 +8,37 @@ app.use(bodyParser.json());
 // ใส่ Channel Access Token ของคุณตรงนี้
 const CHANNEL_ACCESS_TOKEN = 'mEViaFJkpE5dnTgBCAbm6C5JzTgmtXy6a61N7YuC2J9SO1MxfhSfDiLN2NBsWFVg8tYw9yClgDfAufC2RnNR+JgiKc4pKUbcTKSSMhCWxKlCXKONCtp6oysq98g2bWa6YaGZe8IdH3jDlmzRRoSVGAdB04t89/1O/w1cDnyilFU=';
 
-// รางวัลและน้ำหนักความน่าจะเป็น
-const weightedPrizes = [
-  { prize: { text: '🎉 ชุดผ้าปู + ปลอกหมอน 6 ฟุต มูลค่า 790.-' }, weight: 1 },
-  { prize: { text: '🎉 หมอนหนุน มูลค่า 250.-' }, weight: 1 },
-  { prize: { text: '🎉 หมอนข้าง มูลค่า 350.-' }, weight: 1 }
+// รางวัล
+const prizes = [
+  { text: '🎉 ชุดผ้าปู + ปลอกหมอน 6 ฟุค มูลค่า 790 -' },
+  { text: '🎉 หมอนหนุน มูลค่า 250 - !' },
+  { text: '🎉 หมอนข้าง มูลค่า 350 - !' }
 ];
 
-// ฟังก์ชันสุ่มรางวัลแบบ weighted
+// สถานะผู้ใช้รอกรอกชื่อ
+const waitingForName = new Set();
+// สถานะผู้ใช้รอยืนยันหมุน
+const waitingForConfirm = new Set();
+// เก็บชื่อผู้ใช้
+const userNames = {};
+
+// ฟังก์ชันสุ่มรางวัลแบบธรรมดา
 function getRandomPrize() {
-  const totalWeight = weightedPrizes.reduce((sum, item) => sum + item.weight, 0);
-  let random = Math.random() * totalWeight;
-  for (const item of weightedPrizes) {
-    if (random < item.weight) return item.prize;
-    random -= item.weight;
-  }
+  return prizes[Math.floor(Math.random() * prizes.length)];
 }
 
-// เก็บสถานะผู้ใช้
-const waitingForName = new Set();       // คนที่รอพิมพ์ชื่อ
-const waitingForConfirm = new Set();    // คนที่รอยืนยันหมุน
-const alreadyPlayed = new Set();        // คนที่เคยหมุนแล้ว
-const userNames = {};                   // userId -> ชื่อ-นามสกุล
+// ฟังก์ชันส่งข้อความ reply
+async function replyMessage(replyToken, messages) {
+  await axios.post('https://api.line.me/v2/bot/message/reply', {
+    replyToken,
+    messages,
+  }, {
+    headers: {
+      Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`,
+      'Content-Type': 'application/json'
+    }
+  });
+}
 
 app.post('/webhook', async (req, res) => {
   try {
@@ -41,54 +50,64 @@ app.post('/webhook', async (req, res) => {
         const userId = event.source.userId;
         const text = event.message.text.trim();
 
-        // เริ่มลุ้นรางวัล
+        // กรณีเริ่มเล่น พิมพ์ "ลุ้นรางวัล"
         if (text === 'ลุ้นรางวัล') {
-          if (alreadyPlayed.has(userId)) {
-            await replyMessage(event.replyToken, [
-              { type: 'text', text: '❌ คุณได้หมุนไปแล้ว ไม่สามารถหมุนซ้ำได้' }
-            ]);
-            continue;
-          }
           waitingForName.add(userId);
           await replyMessage(event.replyToken, [
-            { type: 'text', text: 'กรุณาพิมพ์ "ชื่อ-นามสกุล" ของคุณเพื่อยืนยันตัวตน' }
+            {
+              type: 'text',
+              text: 'กรุณาพิมพ์ชื่อ - นามสกุลของคุณเพื่อเริ่มหมุนวงล้อครับ'
+            }
           ]);
-
-        // รับชื่อ
-        } else if (waitingForName.has(userId)) {
+        }
+        // กรณีรอชื่อ
+        else if (waitingForName.has(userId)) {
           userNames[userId] = text;
           waitingForName.delete(userId);
           waitingForConfirm.add(userId);
+
           await replyMessage(event.replyToken, [
             {
               type: 'text',
               text:
-                `📌 ชื่อของคุณ: ${text}\n` +
+                `📌 ชื่อของคุณ: ${text}\n\n` +
+                '📢 กติกาการเล่นกิจกรรมเสี่ยงโชค:\n' +
+                '- หมุนได้คนละ 1 ครั้ง\n' +
+                '- รางวัลจะทำการสุ่มตามระบบ\n' +
+                '- หลังหมุนแล้วไม่สามารถเปลี่ยนรางวัลได้\n\n' +
                 'พิมพ์ "ตกลง" เพื่อยืนยันและหมุนวงล้อ'
             }
           ]);
-
-        // ยืนยันหมุน
-        } else if (text === 'ตกลง' && waitingForConfirm.has(userId)) {
+        }
+        // กรณีรอยืนยัน "ตกลง"
+        else if (text === 'ตกลง' && waitingForConfirm.has(userId)) {
           waitingForConfirm.delete(userId);
-          alreadyPlayed.add(userId);
 
-          const prize = getRandomPrize();
-
+          // แจ้งกำลังหมุน
           await replyMessage(event.replyToken, [
             { type: 'text', text: '🎯 กำลังหมุนวงล้อ ...' }
           ]);
 
+          // สุ่มรางวัลและตอบหลัง 3 วิ
           setTimeout(async () => {
-            await pushMessage(userId, [
-              { type: 'text', text: `🎉 คุณ ${userNames[userId]} ได้รางวัล: ${prize.text}` }
-            ]);
+            const prize = getRandomPrize();
+            await axios.post('https://api.line.me/v2/bot/message/push', {
+              to: userId,
+              messages: [
+                { type: 'text', text: `🎉 คุณได้รางวัล: ${prize.text}` }
+              ]
+            }, {
+              headers: {
+                Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`,
+                'Content-Type': 'application/json'
+              }
+            });
           }, 3000);
-
-        // ข้อความอื่น
-        } else {
+        }
+        // กรณีข้อความอื่น ๆ
+        else {
           await replyMessage(event.replyToken, [
-            { type: 'text', text: 'พิมพ์ "ลุ้นรางวัล" เพื่อเริ่มหมุนวงล้อ' }
+            { type: 'text', text: 'พิมพ์ "ลุ้นรางวัล" เพื่อเริ่มหมุนวงล้อได้ครับ' }
           ]);
         }
       }
@@ -99,32 +118,6 @@ app.post('/webhook', async (req, res) => {
     res.sendStatus(500);
   }
 });
-
-// ฟังก์ชันส่งข้อความตอบกลับ
-async function replyMessage(replyToken, messages) {
-  await axios.post('https://api.line.me/v2/bot/message/reply', {
-    replyToken,
-    messages
-  }, {
-    headers: {
-      Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`,
-      'Content-Type': 'application/json'
-    }
-  });
-}
-
-// ฟังก์ชันส่ง push message
-async function pushMessage(to, messages) {
-  await axios.post('https://api.line.me/v2/bot/message/push', {
-    to,
-    messages
-  }, {
-    headers: {
-      Authorization: `Bearer ${CHANNEL_ACCESS_TOKEN}`,
-      'Content-Type': 'application/json'
-    }
-  });
-}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
